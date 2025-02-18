@@ -1,28 +1,16 @@
 import '@umijs/max';
 
-import { requestConfig } from '@/requestConfig';
+import {requestConfig} from '@/requestConfig';
 import {
   getInterfaceInfoVoByIdUsingGet,
   invokeStreamUsingPost,
   invokeUsingPost,
 } from '@/services/miApi/interfaceInfoController';
-import { getLoginUserUsingGet } from '@/services/miApi/userController';
-import {
-  Button,
-  Card,
-  Descriptions,
-  Divider,
-  Empty,
-  Flex,
-  Form,
-  Input,
-  List,
-  message,
-  Space,
-} from 'antd';
+import {getLoginUserUsingGet} from '@/services/miApi/userController';
+import {Button, Card, Descriptions, Divider, Empty, Flex, Form, Input, List, message, Space,} from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import React, {useEffect, useState} from 'react';
+import {useParams} from 'react-router';
 
 const InterFaceInfo: React.FC = () => {
   const param = useParams();
@@ -41,14 +29,17 @@ const InterFaceInfo: React.FC = () => {
       return;
     }
     try {
-      const res = (await getInterfaceInfoVoByIdUsingGet({ id: Number(param.id) })) as any;
+      const res = (await getInterfaceInfoVoByIdUsingGet({id: Number(param.id)})) as any;
       if (res.code === 0) {
         setInterface(res.data);
 
         if (res.data?.requestParam) {
           const requestParam = JSON.parse(res.data?.requestParam);
-          console.log(requestParam);
-          setRequestParamJson(requestParam);
+          if (Object.keys(requestParam).length === 0) {
+            setRequestParamJson(undefined);
+          } else {
+            setRequestParamJson(requestParam);
+          }
         }
       }
     } catch (e) {
@@ -68,7 +59,7 @@ const InterFaceInfo: React.FC = () => {
       try {
         const user = await getLoginUserUsingGet();
 
-        const sseUrl = `${requestConfig.baseURL}/api/sse/join?userId=${user?.data?.id}`;
+        const sseUrl = `${requestConfig.baseURL}/api/sse/join?userId=${user?.data?.id}&interfaceId=${interfaceInfo?.id}`;
         setSseMessages([]);
         // 创建 EventSource 对象
         const eventSource = new EventSource(sseUrl);
@@ -148,47 +139,29 @@ const InterFaceInfo: React.FC = () => {
           <Descriptions.Item label="更新时间">{interfaceInfo?.updateTime}</Descriptions.Item>
         </Descriptions>
       </Card>
-      <Divider />
+      <Divider/>
       <Card title={'在线调试'}>
-        {interfaceInfo?.method === 'POST' ? (
-          <>
-            <Form
-              layout={'vertical'}
-              name="invokeInterfaceForm"
-              labelCol={{ span: 8 }}
-              wrapperCol={{ span: 16 }}
-              initialValues={{ remember: true }}
-              onFinish={finishInterface}
-              autoComplete="off"
-            >
-              <Form.Item
+        <>
+          <Form
+            name="invokeInterfaceForm"
+            labelCol={{span: 3}}
+            wrapperCol={{span: 16}}
+            style={{maxWidth: 800}}
+            initialValues={{remember: true}}
+            onFinish={finishInterface}
+            autoComplete="off"
+            layout={'horizontal'}
+            labelAlign="left"
+          >
+            {interfaceInfo?.method === 'POST' ? (<Form.Item
                 label="请求参数"
                 name="params"
-                rules={[{ required: true, message: '该参数不能为空!' }]}
+                rules={[{required: true, message: '该参数不能为空!'}]}
               >
-                <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }} style={{ width: '100%' }} />
+                <Input.TextArea autoSize={{minRows: 2, maxRows: 10}} style={{width: '100%'}}/>
               </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  在线调试
-                </Button>
-              </Form.Item>
-            </Form>
-          </>
-        ) : (
-          //GET请求
-          <>
-            <Form
-              name="invokeInterfaceForm"
-              labelCol={{ span: 3 }}
-              wrapperCol={{ span: 16 }}
-              style={{ maxWidth: 800 }}
-              initialValues={{ remember: true }}
-              onFinish={finishInterface}
-              autoComplete="off"
-              layout={'horizontal'}
-              labelAlign="left"
-            >
+            ) : (
+              requestParamJson &&
               <List
                 dataSource={requestParamJson}
                 size={'default'}
@@ -197,7 +170,7 @@ const InterFaceInfo: React.FC = () => {
                     <Form.Item colon={true} label={item.name} name={item.name}>
                       <Space>
                         <Input
-                          style={{ width: '50vw' }}
+                          style={{width: '50vw'}}
                           placeholder={'请输入' + item.name + ',类型为' + item.type}
                         />
                       </Space>
@@ -205,19 +178,21 @@ const InterFaceInfo: React.FC = () => {
                   </List.Item>
                 )}
               />
-              <Form.Item>
-                <Button type="primary" htmlType="submit">
-                  在线调试
-                </Button>
-              </Form.Item>
-            </Form>
-          </>
-        )}
+            )}
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                在线调试
+              </Button>
+            </Form.Item>
+          </Form>
+        </>
+
       </Card>
-      <Divider />
+      <Divider/>
       <Card title={'调用详情:'} loading={loadingInvoke}>
         <Flex gap={'large'}>
-          <Card title={'调用结果'} style={{ width: '50%' }}>
+          <Card title={'调用结果'} style={{width: '50%'}}>
             {interfaceInfo.requestHeader?.includes('text/event-stream') ? (
               <div>
                 <Paragraph
@@ -230,23 +205,23 @@ const InterFaceInfo: React.FC = () => {
                     },
                   }}
                 >
-                  {sseMessages}
+                  <text style={{whiteSpace: 'pre-line'}}>{sseMessages}</text>
                 </Paragraph>
               </div>
             ) : invokeData ? (
-              invokeData
+              <text style={{whiteSpace: 'pre-line'}}>{invokeData}</text>
             ) : (
-              <Empty />
+              <Empty/>
             )}
           </Card>
-          <Card title={'响应JSON'} style={{ width: '50%' }}>
+          <Card title={'响应JSON'} style={{width: '50%'}}>
             {invokeDataResponse?.data ? (
               JSON.stringify(invokeDataResponse)
             ) : (
               <Empty
                 description={
                   <span>
-                    <text style={{ color: 'red' }}>
+                    <text style={{color: 'red'}}>
                       {JSON.stringify(invokeDataResponse?.message)}
                     </text>
                   </span>

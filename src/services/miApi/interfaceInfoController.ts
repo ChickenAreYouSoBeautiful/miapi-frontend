@@ -116,6 +116,21 @@ export async function onlineUsingPost(body: API.IdRequest, options?: { [key: str
   });
 }
 
+/** listOnlineInterfaceInfoVOByPage POST /api/interface/online/list/page/vo */
+export async function listOnlineInterfaceInfoVoByPageUsingPost(
+  body: API.InterfaceInfoQueryRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.BaseResponsePageInterfaceInfoVO_>('/api/interface/online/list/page/vo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** invokeStream POST /api/interface/stream/invoke */
 export async function invokeStreamUsingPost(
   body: API.InvokeInterfaceRequest,

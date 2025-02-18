@@ -22,6 +22,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseListString_ = {
+    code?: number;
+    data?: string[];
+    message?: string;
+  };
+
   type BaseResponseLoginUserVO_ = {
     code?: number;
     data?: LoginUserVO;
@@ -184,6 +190,8 @@ declare namespace API {
   };
 
   type joinUsingGETParams = {
+    /** interfaceId */
+    interfaceId?: number;
     /** userId */
     userId?: number;
   };
