@@ -189,13 +189,6 @@ declare namespace API {
     interfaceParam?: string;
   };
 
-  type joinUsingGETParams = {
-    /** interfaceId */
-    interfaceId?: number;
-    /** userId */
-    userId?: number;
-  };
-
   type LoginUserVO = {
     accessKey?: string;
     createTime?: string;
@@ -271,8 +264,9 @@ declare namespace API {
     timeout?: number;
   };
 
-  type uploadFileUsingPOSTParams = {
-    biz?: string;
+  type sseUsingGETParams = {
+    /** userId */
+    userId?: number;
   };
 
   type User = {
@@ -334,11 +328,6 @@ declare namespace API {
     count?: number;
     interfaceId?: number;
     name?: string;
-  };
-
-  type userLoginByWxOpenUsingGETParams = {
-    /** code */
-    code: string;
   };
 
   type UserLoginRequest = {

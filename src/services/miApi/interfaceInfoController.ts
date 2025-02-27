@@ -131,6 +131,21 @@ export async function listOnlineInterfaceInfoVoByPageUsingPost(
   });
 }
 
+/** sse GET /api/interface/sse */
+export async function sseUsingGet(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.sseUsingGETParams,
+  options?: { [key: string]: any },
+) {
+  return request<API.SseEmitter>('/api/interface/sse', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** invokeStream POST /api/interface/stream/invoke */
 export async function invokeStreamUsingPost(
   body: API.InvokeInterfaceRequest,

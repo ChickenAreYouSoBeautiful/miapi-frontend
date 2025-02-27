@@ -59,7 +59,7 @@ const InterFaceInfo: React.FC = () => {
       try {
         const user = await getLoginUserUsingGet();
 
-        const sseUrl = `${requestConfig.baseURL}/api/sse/join?userId=${user?.data?.id}&interfaceId=${interfaceInfo?.id}`;
+        const sseUrl = `${requestConfig.baseURL}/api/sse?userId=${user?.data?.id}`;
         setSseMessages([]);
         // 创建 EventSource 对象
         const eventSource = new EventSource(sseUrl);
@@ -94,7 +94,7 @@ const InterFaceInfo: React.FC = () => {
     try {
       const res = await invokeUsingPost({
         id: interfaceInfo.id,
-        interfaceParam: JSON.stringify(values),
+        interfaceParam: interfaceInfo.method === 'POST' ? values.params : JSON.stringify(values),
       });
       console.log(res);
       setInvokeData(res?.data);
