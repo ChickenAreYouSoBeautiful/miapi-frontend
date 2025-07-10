@@ -129,8 +129,13 @@ export default defineConfig({
   openAPI: [
     {
       requestLibPath: "import { request } from '@umijs/max'",
-      schemaPath: 'http://localhost:8082/api//v2/api-docs',
-      projectName: 'miApi',
+      schemaPath: 'http://localhost:8081/api-user/v2/api-docs?group=default',
+      projectName: 'api-user',
+    },
+    {
+      requestLibPath: "import { request } from '@umijs/max'",
+      schemaPath: 'http://localhost:8081/api-interfaces/v2/api-docs?group=default',
+      projectName: 'api-interfaces',
     },
   ],
   mfsu: {

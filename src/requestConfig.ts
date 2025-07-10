@@ -24,7 +24,7 @@ const isDev = process.env.NODE_ENV === 'development';
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const requestConfig = {
-  baseURL: isDev ? 'http://localhost:8082' : 'http://120.46.54.54:8083',
+  baseURL: isDev ? 'http://localhost:8081' : 'http://120.46.54.54:8083',
   withCredentials: true,
   // 请求拦截器
   requestInterceptors: [

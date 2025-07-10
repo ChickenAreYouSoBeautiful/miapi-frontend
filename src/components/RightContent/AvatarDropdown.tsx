@@ -1,4 +1,4 @@
-import { userLogoutUsingPost } from '@/services/miApi/userController';
+
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { history, useModel } from '@umijs/max';
 import { MenuProps, Spin } from 'antd';
@@ -8,6 +8,7 @@ import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
+import {userLogoutUsingPost} from "@/services/api-user/authController";
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;

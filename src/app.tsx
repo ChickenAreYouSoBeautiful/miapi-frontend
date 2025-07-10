@@ -1,9 +1,9 @@
 import { AvatarDropdown, AvatarName, Footer } from '@/components';
-import { getLoginUserUsingGet } from '@/services/miApi/userController';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
 import { history } from '@umijs/max';
 import { requestConfig } from './requestConfig';
+import {getLoginUserUsingGet} from "@/services/api-user/authController";
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
@@ -21,6 +21,7 @@ export async function getInitialState(): Promise<InitialState> {
     }
   } catch (error) {
     console.log(1);
+    console.log(error);
     history.push(loginPath);
   }
 
@@ -46,6 +47,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       const { location } = history;
       // 如果没有登录，重定向到 login
       if (!initialState?.loginUser && location.pathname !== loginPath) {
+        console.log('未登录，重定向登录页');
         history.push(loginPath);
       }
     },

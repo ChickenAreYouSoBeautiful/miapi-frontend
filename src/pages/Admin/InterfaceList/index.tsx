@@ -6,15 +6,12 @@ import {Button, Drawer, Input, message} from 'antd';
 import React, {useRef, useState} from 'react';
 
 import UpdateForm from './components/UpdateForm';
-import {
-  addInterfaceInfoUsingPost,
-  deleteInterfaceInfoUsingPost,
-  listInterfaceInfoVoByPageUsingPost,
-  offlineUsingPost,
-  onlineUsingPost,
-  updateInterfaceInfoUsingPost
-} from "@/services/miApi/interfaceInfoController";
 import AddInterfaceForm from "@/pages/Admin/InterfaceList/components/AddInterfaceForm";
+import {
+  addInterfaceInfoUsingPost, deleteInterfaceInfoUsingPost, listInterfaceInfoVoByPageUsingPost,
+  offlineUsingPost,
+  onlineUsingPost, updateInterfaceInfoUsingPost
+} from "@/services/api-interfaces/interfaceInfoController";
 
 const TableList: React.FC = () => {
   /**

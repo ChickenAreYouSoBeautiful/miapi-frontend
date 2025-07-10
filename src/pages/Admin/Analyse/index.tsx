@@ -1,8 +1,8 @@
 import '@umijs/max';
 import React, {useEffect, useState} from 'react';
 import EChartsReact from "echarts-for-react";
-import {analyseUsingGet} from "@/services/miApi/userInterfaceCountController";
-import {Card, Divider, Form, message, Row, Select} from "antd";
+import {Card, Divider, Form, message, Select} from "antd";
+import {analyseUsingGet} from "@/services/api-interfaces/userInterfaceCountController";
 
 
 const Analyse: React.FC = () => {

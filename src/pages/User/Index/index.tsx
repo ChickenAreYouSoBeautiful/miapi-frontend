@@ -1,7 +1,7 @@
 import '@umijs/max';
 import {Button, Card, List} from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
-import {listOnlineInterfaceInfoVoByPageUsingPost} from "@/services/miApi/interfaceInfoController";
+import {listOnlineInterfaceInfoVoByPageUsingPost} from "@/services/api-interfaces/interfaceInfoController";
 
 
 const InterfaceList: React.FC = () => {

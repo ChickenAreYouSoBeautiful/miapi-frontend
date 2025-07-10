@@ -1,9 +1,10 @@
 import '@umijs/max';
 import React, {useEffect, useState} from 'react';
 import {Alert, Avatar, Button, Card, Descriptions, DescriptionsProps, Divider, Form, Input, message} from "antd";
-import {getLoginUserUsingGet, refreshSecreteKeyUsingPost, signInUsingPost} from "@/services/miApi/userController";
 import {DescriptionsItemType} from "antd/es/descriptions";
 import {AntDesignOutlined, EditOutlined, PayCircleOutlined, WarningFilled} from "@ant-design/icons";
+import {getLoginUserUsingGet} from "@/services/api-user/authController";
+import {refreshSecreteKeyUsingPost, signInUsingPost} from "@/services/api-user/userController";
 
 
 const InterfaceList: React.FC = () => {

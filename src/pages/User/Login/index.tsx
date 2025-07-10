@@ -1,5 +1,4 @@
 import { Footer } from '@/components';
-import { userLoginUsingPost, userRegisterUsingPost } from '@/services/miApi/userController';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-components';
 import { Helmet, history, useModel } from '@umijs/max';
@@ -7,6 +6,7 @@ import { Alert, message, Tabs } from 'antd';
 import React, { useState } from 'react';
 import { flushSync } from 'react-dom';
 import Settings from '../../../../config/defaultSettings';
+import {userLoginUsingPost, userRegisterUsingPost} from "@/services/api-user/authController";
 
 const LoginMessage: React.FC<{
   content: string;

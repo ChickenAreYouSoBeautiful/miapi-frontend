@@ -1,16 +1,10 @@
 import '@umijs/max';
 
-import {requestConfig} from '@/requestConfig';
-import {
-  getInterfaceInfoVoByIdUsingGet,
-  invokeStreamUsingPost,
-  invokeUsingPost,
-} from '@/services/miApi/interfaceInfoController';
-import {getLoginUserUsingGet} from '@/services/miApi/userController';
 import {Button, Card, Descriptions, Divider, Empty, Flex, Form, Input, List, message, Space,} from 'antd';
 import Paragraph from 'antd/lib/typography/Paragraph';
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router';
+import {getInterfaceInfoVoByIdUsingGet, invokeUsingPost} from "@/services/api-interfaces/interfaceInfoController";
 
 const InterFaceInfo: React.FC = () => {
   const param = useParams();
@@ -55,41 +49,41 @@ const InterFaceInfo: React.FC = () => {
       return false;
     }
     //判断是否是sse请求
-    if (interfaceInfo.requestHeader?.includes('text/event-stream')) {
-      try {
-        const user = await getLoginUserUsingGet();
-
-        const sseUrl = `${requestConfig.baseURL}/api/sse?userId=${user?.data?.id}`;
-        setSseMessages([]);
-        // 创建 EventSource 对象
-        const eventSource = new EventSource(sseUrl);
-
-        // 监听消息
-        eventSource.onmessage = (event) => {
-          console.log(event.data);
-          setSseMessages((prevMessages) => [...prevMessages, event.data]);
-        };
-
-        // 监听错误
-        eventSource.onerror = (e) => {
-          message.error('SSE连接错误' + e);
-          eventSource.close();
-          setloadingInvoke(false);
-        };
-
-        invokeStreamUsingPost({
-          id: interfaceInfo.id,
-          interfaceParam: values.params,
-        });
-        setloadingInvoke(false);
-
-        return;
-      } catch (e) {
-        message.error(e.message);
-        setloadingInvoke(false);
-        return;
-      }
-    }
+    // if (interfaceInfo.requestHeader?.includes('text/event-stream')) {
+    //   try {
+    //     const user = await getLoginUserUsingGet();
+    //
+    //     const sseUrl = `${requestConfig.baseURL}/api/sse?userId=${user?.data?.id}`;
+    //     setSseMessages([]);
+    //     // 创建 EventSource 对象
+    //     const eventSource = new EventSource(sseUrl);
+    //
+    //     // 监听消息
+    //     eventSource.onmessage = (event) => {
+    //       console.log(event.data);
+    //       setSseMessages((prevMessages) => [...prevMessages, event.data]);
+    //     };
+    //
+    //     // 监听错误
+    //     eventSource.onerror = (e) => {
+    //       message.error('SSE连接错误' + e);
+    //       eventSource.close();
+    //       setloadingInvoke(false);
+    //     };
+    //
+    //     invokeStreamUsingPost({
+    //       id: interfaceInfo.id,
+    //       interfaceParam: values.params,
+    //     });
+    //     setloadingInvoke(false);
+    //
+    //     return;
+    //   } catch (e) {
+    //     message.error(e.message);
+    //     setloadingInvoke(false);
+    //     return;
+    //   }
+    // }
 
     try {
       const res = await invokeUsingPost({
