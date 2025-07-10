@@ -4,7 +4,8 @@ import {Button, Card, Descriptions, Divider, Empty, Flex, Form, Input, List, mes
 import Paragraph from 'antd/lib/typography/Paragraph';
 import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router';
-import {getInterfaceInfoVoByIdUsingGet, invokeUsingPost} from "@/services/api-interfaces/interfaceInfoController";
+import {getInterfaceInfoVoByIdUsingGet} from "@/services/api-interfaces/interfaceInfoController";
+import {invokeUsingPost} from "@/services/api-interfaces/invokeController"
 
 const InterFaceInfo: React.FC = () => {
   const param = useParams();
@@ -36,7 +37,7 @@ const InterFaceInfo: React.FC = () => {
           }
         }
       }
-    } catch (e) {
+    } catch (e:any) {
       message.error(e.message);
     }
     setLoadingInterface(false);
@@ -91,9 +92,9 @@ const InterFaceInfo: React.FC = () => {
         interfaceParam: interfaceInfo.method === 'POST' ? values.params : JSON.stringify(values),
       });
       console.log(res);
-      setInvokeData(res?.data);
+      setInvokeData(res?.data as unknown as string);
       setInvokeDataResponse(res);
-    } catch (e) {
+    } catch (e:any) {
       message.error(e.message);
     }
 

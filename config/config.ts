@@ -137,6 +137,11 @@ export default defineConfig({
       schemaPath: 'http://localhost:8081/api-interfaces/v2/api-docs?group=default',
       projectName: 'api-interfaces',
     },
+    {
+      requestLibPath: "import { request } from '@umijs/max'",
+      schemaPath: 'http://localhost:8081/api-file/v2/api-docs?group=default',
+      projectName: 'api-file',
+    },
   ],
   mfsu: {
     strategy: 'normal',

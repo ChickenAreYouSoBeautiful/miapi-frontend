@@ -20,7 +20,7 @@ const InterfaceList: React.FC = () => {
 
     if (res.code === 0){
       setInterfaceList(res.data?.records ?? []);
-      setCurrent(res.current);
+      setCurrent(res.data?.current ?? 1);
     }
 
   }

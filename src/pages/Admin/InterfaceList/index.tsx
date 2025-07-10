@@ -35,10 +35,10 @@ const TableList: React.FC = () => {
         message.success("操作成功");
         actionRef.current?.reload();
       } else {
-        message.error(res.description);
+        message.error(res?.message);
         return false;
       }
-    } catch (e) {
+    } catch (e : any) {
       message.error("修改状态错误:" + e.message);
       return false;
     }
@@ -51,10 +51,10 @@ const TableList: React.FC = () => {
         message.success("操作成功");
         actionRef.current?.reload();
       } else {
-        message.error(res.description);
+        message.error(res.message);
         return false;
       }
-    } catch (e) {
+    } catch (e:any) {
       message.error("修改状态错误:" + e.message);
       return false;
     }
@@ -83,7 +83,7 @@ const TableList: React.FC = () => {
         message.error(res?.message);
         return false
       }
-    } catch (error) {
+    } catch (error :any) {
       hide();
       message.error('新增接口error:' + error?.message);
       return false;
@@ -98,7 +98,7 @@ const TableList: React.FC = () => {
    */
   const handleUpdate = async (fields: API.InterfaceInfoUpdateRequest) => {
     const hide = message.loading('Configuring');
-    if (currentId < 1) {
+    if (currentId && currentId < 1) {
       message.error('请先选择要修改的数据');
     }
     try {
@@ -135,7 +135,7 @@ const TableList: React.FC = () => {
       actionRef.current?.reload();
       hide();
       return true;
-    } catch (error) {
+    } catch (error:any) {
       hide();
       message.error('删除失败：'+error.message);
       return false;
@@ -240,7 +240,7 @@ const TableList: React.FC = () => {
       dataIndex: 'updateTime',
       valueType: 'dateTime',
       hideInForm: true,
-      renderFormItem: (item, {defaultRender, ...rest}, form) => {
+      renderFormItem: (item: any, {defaultRender, ...rest} :any, form: any) => {
         const status = form.getFieldValue('status');
         if (`${status}` === '0') {
           return false;
@@ -255,7 +255,7 @@ const TableList: React.FC = () => {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
-      render: (_, record,) => {
+      render: (_: any, record: any,) => {
         return [
           <a
             key="remove"
@@ -333,6 +333,11 @@ const TableList: React.FC = () => {
               total: res.data?.total,
             };
           }
+          return {
+            data: [],
+            success: false,
+            total: 0,
+          };
         }}
         columns={columns}
       />

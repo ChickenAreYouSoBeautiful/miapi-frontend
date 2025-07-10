@@ -18,7 +18,7 @@ const Analyse: React.FC = () => {
         number: num ?? 3
       });
       if (res.code === 0) {
-        const userInterfaceCountVoS = res.data?.userInterfaceCountVoS
+        const userInterfaceCountVoS = res.data?.userInterfaceCountVoS ?? [];
         const echartsData = userInterfaceCountVoS.map((item) => {
           return {
             value: item.count,
@@ -28,7 +28,7 @@ const Analyse: React.FC = () => {
         const option = {
           title: {
             text: '接口调用统计(最多统计前十条)',
-            subtext: '接口总数：' + res.data.total,
+            subtext: '接口总数：' + res.data?.total,
             left: 'center'
           },
           tooltip: {
@@ -58,7 +58,7 @@ const Analyse: React.FC = () => {
       } else {
         message.error("请求失败:" + res.message)
       }
-    } catch (e) {
+    } catch (e: any) {
       message.error("请求失败：" + e.message);
     } finally {
       setLoadingOption(false);
@@ -83,7 +83,7 @@ const Analyse: React.FC = () => {
           label={'展示接口数量'}
           >
           <Select
-            defaultValue="3"
+            defaultValue={3}
             style={{width: 120}}
             onChange={handleChange}
             options={[

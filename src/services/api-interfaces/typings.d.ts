@@ -46,22 +46,15 @@ declare namespace API {
     message?: string;
   };
 
-  type BaseResponseUserInterfaceCountVO_ = {
-    code?: number;
-    data?: UserInterfaceCountVO;
-    message?: string;
-  };
-
   type DeleteRequest = {
     id?: number;
   };
 
-  type getInterfaceInfoVOByIdUsingGETParams = {
-    /** id */
-    id?: number;
+  type FluxString_ = {
+    prefetch?: number;
   };
 
-  type getUserInterfaceCountVOByIdUsingGETParams = {
+  type getInterfaceInfoVOByIdUsingGETParams = {
     /** id */
     id?: number;
   };
@@ -168,12 +161,6 @@ declare namespace API {
     total?: number;
   };
 
-  type UserInterfaceCountAddRequest = {
-    id?: number;
-    interfaceId?: number;
-    residueCount?: number;
-  };
-
   type UserInterfaceCountAnalyseVo = {
     total?: number;
     userInterfaceCountVoS?: UserInterfaceCountVO[];
@@ -190,12 +177,6 @@ declare namespace API {
     status?: number;
     updateTime?: string;
     userid?: number;
-  };
-
-  type UserInterfaceCountUpdateRequest = {
-    id?: number;
-    residueCount?: number;
-    status?: number;
   };
 
   type UserInterfaceCountVO = {
