@@ -1,11 +1,12 @@
 import '@umijs/max';
 
-import {Button, Card, Descriptions, Divider, Empty, Flex, Form, Input, List, message, Space,} from 'antd';
-import Paragraph from 'antd/lib/typography/Paragraph';
-import React, {useEffect, useState} from 'react';
-import {useParams} from 'react-router';
-import {getInterfaceInfoVoByIdUsingGet} from "@/services/api-interfaces/interfaceInfoController";
-import {invokeUsingPost} from "@/services/api-interfaces/invokeController"
+import ResponseViewer from '@/components/InterfaceInfo/ResponseViewer';
+import { requestConfig } from '@/requestConfig';
+import { getInterfaceInfoVoByIdUsingGet } from '@/services/api-interfaces/interfaceInfoController';
+import { invokeUsingPost, submitSseUsingPost } from '@/services/api-interfaces/invokeController';
+import { Button, Card, Descriptions, Divider, Flex, Form, Input, List, message, Space } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 
 const InterFaceInfo: React.FC = () => {
   const param = useParams();
@@ -13,9 +14,9 @@ const InterFaceInfo: React.FC = () => {
   const [loadingInterface, setLoadingInterface] = useState<boolean>(false);
   const [loadingInvoke, setloadingInvoke] = useState<boolean>(false);
   const [invokeData, setInvokeData] = useState<string>();
-  const [invokeDataResponse, setInvokeDataResponse] = useState<any>({});
   const [requestParamJson, setRequestParamJson] = useState<API.RequestJson[]>();
   const [sseMessages, setSseMessages] = useState<string[]>([]);
+  const [sseEnded, setSseEnded] = useState(false);
 
   const loadData = async () => {
     setLoadingInterface(true);
@@ -24,7 +25,7 @@ const InterFaceInfo: React.FC = () => {
       return;
     }
     try {
-      const res = (await getInterfaceInfoVoByIdUsingGet({id: Number(param.id)})) as any;
+      const res = (await getInterfaceInfoVoByIdUsingGet({ id: Number(param.id) })) as any;
       if (res.code === 0) {
         setInterface(res.data);
 
@@ -37,72 +38,137 @@ const InterFaceInfo: React.FC = () => {
           }
         }
       }
-    } catch (e:any) {
+    } catch (e: any) {
       message.error(e.message);
     }
     setLoadingInterface(false);
   };
 
-  const finishInterface = async (values: { params: any }) => {
+  const getInvokeType = () => {
+    const header = interfaceInfo.responseHeader || '';
+    // if (header.includes('websocket')) return 'websocket';
+    if (header.includes('text/event-stream')) return 'sse';
+    return 'normal';
+  };
+
+  const handleNormalInvoke = async (params: any) => {
+    const res = await invokeUsingPost({
+      id: interfaceInfo.id,
+      interfaceParam: JSON.stringify(params),
+    });
+    setInvokeData(res?.data as unknown as string);
+  };
+
+  const handleSseInvoke = async (params: any) => {
+    // 1. 提交参数，获取 taskId
+    const submitRes = await submitSseUsingPost({
+      id: interfaceInfo.id,
+      interfaceParam: JSON.stringify(params),
+    });
+    if (submitRes.code !== 0 || !submitRes.data) {
+      throw new Error('任务提交失败');
+    }
+    const taskId = submitRes.data;
+    setSseMessages([]);
+    // 2. 用 EventSource 拉流
+    const sseUrl = `${
+      requestConfig.baseURL
+    }/api-interfaces/api/sse/invoke?taskId=${encodeURIComponent(taskId)}`;
+    const eventSource = new EventSource(sseUrl, {
+      withCredentials: true,
+    });
+
+    eventSource.onmessage = (event) => {
+      if (event.data === '[END]') {
+        setSseEnded(true);
+        eventSource.close();
+        setloadingInvoke(false);
+        return;
+      }
+      setSseMessages((prev) => [...prev, event.data]);
+    };
+    eventSource.onerror = () => {
+      // 如果已经收到结束标记，则不提示错误
+      if (!sseEnded) {
+        message.error('SSE连接错误');
+      }
+      eventSource.close();
+      setloadingInvoke(false);
+    };
+    eventSource.onopen = () => {
+      setloadingInvoke(false);
+    };
+  };
+
+  // const handleWebSocketInvoke = async (params: any) => {
+  //   setSseMessages([]);
+  //   // 这里需要你根据实际后端 ws 地址填写
+  //   const wsUrl = `ws://你的ws服务地址`;
+  //   const ws = new WebSocket(wsUrl);
+
+  //   ws.onopen = () => {
+  //     ws.send(JSON.stringify({
+  //       id: interfaceInfo.id,
+  //       interfaceParam: params,
+  //     }));
+  //     setloadingInvoke(false);
+  //   };
+  //   ws.onmessage = (event) => {
+  //     setSseMessages((prev) => [...prev, event.data]);
+  //   };
+  //   ws.onerror = (e) => {
+  //     message.error('WebSocket连接错误');
+  //     ws.close();
+  //     setloadingInvoke(false);
+  //   };
+  //   ws.onclose = () => {};
+  // };
+
+  const finishInterface = async (values: string) => {
     setloadingInvoke(true);
     if (!interfaceInfo.id) {
       message.error('接口信息异常');
+      setloadingInvoke(false);
       return false;
     }
-    //判断是否是sse请求
-    // if (interfaceInfo.requestHeader?.includes('text/event-stream')) {
-    //   try {
-    //     const user = await getLoginUserUsingGet();
-    //
-    //     const sseUrl = `${requestConfig.baseURL}/api/sse?userId=${user?.data?.id}`;
-    //     setSseMessages([]);
-    //     // 创建 EventSource 对象
-    //     const eventSource = new EventSource(sseUrl);
-    //
-    //     // 监听消息
-    //     eventSource.onmessage = (event) => {
-    //       console.log(event.data);
-    //       setSseMessages((prevMessages) => [...prevMessages, event.data]);
-    //     };
-    //
-    //     // 监听错误
-    //     eventSource.onerror = (e) => {
-    //       message.error('SSE连接错误' + e);
-    //       eventSource.close();
-    //       setloadingInvoke(false);
-    //     };
-    //
-    //     invokeStreamUsingPost({
-    //       id: interfaceInfo.id,
-    //       interfaceParam: values.params,
-    //     });
-    //     setloadingInvoke(false);
-    //
-    //     return;
-    //   } catch (e) {
-    //     message.error(e.message);
-    //     setloadingInvoke(false);
-    //     return;
-    //   }
-    // }
-
     try {
-      const res = await invokeUsingPost({
-        id: interfaceInfo.id,
-        interfaceParam: interfaceInfo.method === 'POST' ? values.params : JSON.stringify(values),
-      });
-      console.log(res);
-      setInvokeData(res?.data as unknown as string);
-      setInvokeDataResponse(res);
-    } catch (e:any) {
-      message.error(e.message);
+      const type = getInvokeType();
+      if (type === 'sse') {
+        await handleSseInvoke(values);
+      } else {
+        await handleNormalInvoke(values);
+      }
+    } catch (e: any) {
+      message.error(e.message || '请求失败');
     }
-
     setloadingInvoke(false);
   };
+
   useEffect(() => {
     loadData();
   }, []);
+
+  const JsonPretty = ({ data }: { data?: string }) => {
+    if (!data) return <span style={{ color: '#aaa' }}>无</span>;
+    try {
+      return (
+        <pre
+          style={{
+            background: '#f6f6f6',
+            padding: 12,
+            borderRadius: 4,
+            maxHeight: 300,
+            overflow: 'auto',
+          }}
+        >
+          {JSON.stringify(JSON.parse(data), null, 2)}
+        </pre>
+      );
+    } catch {
+      return <span style={{ color: 'red' }}>非合法JSON</span>;
+    }
+  };
+
   return (
     //   createTime?: string;
     //     description?: string;
@@ -125,47 +191,56 @@ const InterFaceInfo: React.FC = () => {
           </Descriptions.Item>
           <Descriptions.Item label="接口地址">{interfaceInfo?.url}</Descriptions.Item>
           <Descriptions.Item label="请求方式">{interfaceInfo?.method}</Descriptions.Item>
-          <Descriptions.Item label="请求参数">{interfaceInfo?.requestParam}</Descriptions.Item>
-          <Descriptions.Item label="请求示例">
-            {interfaceInfo?.sampleRequestParam}
+          <Descriptions.Item label="请求参数">
+            <JsonPretty data={interfaceInfo?.requestParam} />
           </Descriptions.Item>
-          <Descriptions.Item label="请求头">{interfaceInfo?.requestHeader}</Descriptions.Item>
-          <Descriptions.Item label="响应头">{interfaceInfo?.responseHeader}</Descriptions.Item>
+          <Descriptions.Item label="请求示例">
+            <JsonPretty data={interfaceInfo?.sampleRequestParam} />
+          </Descriptions.Item>
+          <Descriptions.Item label="请求头">
+            <JsonPretty data={interfaceInfo?.requestHeader} />
+          </Descriptions.Item>
+          <Descriptions.Item label="响应头">
+            <JsonPretty data={interfaceInfo?.responseHeader} />
+          </Descriptions.Item>
           <Descriptions.Item label="更新时间">{interfaceInfo?.updateTime}</Descriptions.Item>
         </Descriptions>
       </Card>
-      <Divider/>
-      <Card title={'在线调试'}>
-        <>
-          <Form
-            name="invokeInterfaceForm"
-            labelCol={{span: 3}}
-            wrapperCol={{span: 16}}
-            style={{maxWidth: 800}}
-            initialValues={{remember: true}}
-            onFinish={finishInterface}
-            autoComplete="off"
-            layout={'horizontal'}
-            labelAlign="left"
-          >
-            {interfaceInfo?.method === 'POST' ? (<Form.Item
-                label="请求参数"
-                name="params"
-                rules={[{required: true, message: '该参数不能为空!'}]}
-              >
-                <Input.TextArea autoSize={{minRows: 2, maxRows: 10}} style={{width: '100%'}}/>
-              </Form.Item>
-            ) : (
-              requestParamJson &&
+      <Divider />
+      <Card title="在线调试与结果" loading={loadingInvoke} style={{ marginTop: 16 }}>
+        <Flex gap="large" align="flex-start">
+          {/* 左侧：在线调用表单 */}
+          <div style={{ width: '50%' }}>
+            <Form
+              name="invokeInterfaceForm"
+              labelCol={{ span: 4 }}
+              wrapperCol={{ span: 18 }}
+              style={{ maxWidth: 400 }}
+              initialValues={{ remember: true }}
+              onFinish={finishInterface}
+              autoComplete="off"
+              layout="horizontal"
+              labelAlign="left"
+            >
+              {/* {interfaceInfo?.method === 'POST' ? (
+                <Form.Item
+                  label="请求参数"
+                  name="params"
+                  rules={[{ required: true, message: '该参数不能为空!' }]}
+                >
+                  <Input.TextArea autoSize={{ minRows: 2, maxRows: 10 }} style={{ width: '100%' }} />
+                </Form.Item>
+              ) : ( */}
+              {/* requestParamJson && */}
               <List
                 dataSource={requestParamJson}
-                size={'default'}
+                size="default"
                 renderItem={(item) => (
                   <List.Item>
                     <Form.Item colon={true} label={item.name} name={item.name}>
                       <Space>
                         <Input
-                          style={{width: '50vw'}}
+                          style={{ width: '20vw' }}
                           placeholder={'请输入' + item.name + ',类型为' + item.type}
                         />
                       </Space>
@@ -173,57 +248,29 @@ const InterFaceInfo: React.FC = () => {
                   </List.Item>
                 )}
               />
-            )}
+              {/* )} */}
 
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                在线调试
-              </Button>
-            </Form.Item>
-          </Form>
-        </>
+              <Form.Item>
+                <Button type="primary" htmlType="submit">
+                  在线调试
+                </Button>
+              </Form.Item>
+            </Form>
+          </div>
 
-      </Card>
-      <Divider/>
-      <Card title={'调用详情:'} loading={loadingInvoke}>
-        <Flex gap={'large'}>
-          <Card title={'调用结果'} style={{width: '50%'}}>
-            {interfaceInfo.requestHeader?.includes('text/event-stream') ? (
-              <div>
-                <Paragraph
-                  copyable={sseMessages.length > 0}
-                  ellipsis={{
-                    rows: 2,
-                    expandable: true,
-                    symbol: (expanded) => {
-                      return expanded ? '收起' : '展开';
-                    },
-                  }}
-                >
-                  <text style={{whiteSpace: 'pre-line'}}>{sseMessages}</text>
-                </Paragraph>
-              </div>
-            ) : invokeData ? (
-              <text style={{whiteSpace: 'pre-line'}}>{invokeData}</text>
-            ) : (
-              <Empty/>
-            )}
-          </Card>
-          <Card title={'响应JSON'} style={{width: '50%'}}>
-            {invokeDataResponse?.data ? (
-              JSON.stringify(invokeDataResponse)
-            ) : (
-              <Empty
-                description={
-                  <span>
-                    <text style={{color: 'red'}}>
-                      {JSON.stringify(invokeDataResponse?.message)}
-                    </text>
-                  </span>
+          {/* 右侧：调用结果 */}
+          <div style={{ width: '50%' }}>
+            <Card bordered={false}>
+              <ResponseViewer
+                type={interfaceInfo.responseHeader || 'application/json'}
+                data={
+                  interfaceInfo.responseHeader?.includes('text/event-stream')
+                    ? sseMessages
+                    : invokeData
                 }
               />
-            )}
-          </Card>
+            </Card>
+          </div>
         </Flex>
       </Card>
     </div>

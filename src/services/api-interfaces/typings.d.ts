@@ -40,6 +40,12 @@ declare namespace API {
     message?: string;
   };
 
+  type BaseResponseString_ = {
+    code?: number;
+    data?: string;
+    message?: string;
+  };
+
   type BaseResponseUserInterfaceCountAnalyseVo_ = {
     code?: number;
     data?: UserInterfaceCountAnalyseVo;
@@ -128,6 +134,11 @@ declare namespace API {
   type InvokeInterfaceRequest = {
     id?: number;
     interfaceParam?: string;
+  };
+
+  type invokeSseUsingGETParams = {
+    /** taskId */
+    taskId?: string;
   };
 
   type OrderItem = {
