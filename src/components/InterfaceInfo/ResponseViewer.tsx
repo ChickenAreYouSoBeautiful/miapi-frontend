@@ -23,11 +23,17 @@ const JsonPretty = ({ data }: { data?: string }) => {
 };
 
 const ResponseViewer: React.FC<{ type: string; data: any }> = ({ type, data }) => {
+  // 处理数据内容
+  const content = Array.isArray(data)
+    ? data.join('')
+    : (typeof data === 'string' ? data : JSON.stringify(data));
+
   if (type.includes('application/json')) {
     return <JsonPretty data={typeof data === 'string' ? data : JSON.stringify(data)} />;
   }
+
   if (type.includes('text/event-stream')) {
-    // SSE流式数据，data为字符串数组
+    // SSE 流式数据，直接显示文本
     return (
       <pre
         style={{
@@ -36,12 +42,15 @@ const ResponseViewer: React.FC<{ type: string; data: any }> = ({ type, data }) =
           borderRadius: 4,
           maxHeight: 300,
           overflow: 'auto',
+          whiteSpace: 'pre-wrap',
+          wordWrap: 'break-word',
         }}
       >
-        {Array.isArray(data) ? data.join('') : data}
+        {content}
       </pre>
     );
   }
+
   // 其他类型，直接文本展示
   return (
     <pre
